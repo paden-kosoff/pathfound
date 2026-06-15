@@ -5,7 +5,10 @@ import { supabase } from "../../lib/supabase";
 
 export default function Welcome() {
   const [email, setEmail] = useState<string | undefined>("");
+  const [userId, setUserId] = useState("");
   const [checking, setChecking] = useState(true);
+  const [importing, setImporting] = useState(false);
+  const [importMessage, setImportMessage] = useState("");
 
   useEffect(() => {
     async function getUser() {
@@ -15,6 +18,7 @@ export default function Welcome() {
         window.location.href = "/login";
       } else {
         setEmail(data.user.email);
+        setUserId(data.user.id);
       }
 
       setChecking(false);
@@ -26,6 +30,49 @@ export default function Welcome() {
   async function handleLogout() {
     await supabase.auth.signOut();
     window.location.href = "/";
+  }
+
+  async function handleImportGmail() {
+    setImporting(true);
+    setImportMessage("");
+
+    const { data: sessionData } = await supabase.auth.getSession();
+
+    const accessToken = sessionData.session?.provider_token;
+
+    if (!accessToken) {
+      setImportMessage(
+        "Google access token not found. Please log out and sign back in with Google."
+      );
+      setImporting(false);
+      return;
+    }
+
+    const response = await fetch("/api/gmail/import", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        accessToken,
+        userId,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      setImportMessage(
+        result.error || "Something went wrong importing Gmail."
+      );
+    } else {
+      setImportMessage(
+        `Imported ${result.imported} Gmail messages successfully.`
+      );
+      console.log(result.messages);
+    }
+
+    setImporting(false);
   }
 
   if (checking) {
@@ -89,13 +136,23 @@ export default function Welcome() {
           </p>
 
           <p className="text-gray-700 mb-8">
-            To get started, connect your Gmail account so we can
-            help you track opportunities and never miss a next step.
+            To get started, import your Gmail history so PathFound
+            can identify opportunities and help you track next steps.
           </p>
 
-          <button className="bg-green-900 text-white px-6 py-3 rounded-lg hover:bg-green-800">
-            Connect Gmail
+          <button
+            onClick={handleImportGmail}
+            disabled={importing}
+            className="bg-green-900 text-white px-6 py-3 rounded-lg hover:bg-green-800 disabled:opacity-60"
+          >
+            {importing ? "Importing..." : "Import Gmail History"}
           </button>
+
+          {importMessage && (
+            <p className="mt-6 text-gray-700">
+              {importMessage}
+            </p>
+          )}
         </div>
       </section>
     </main>

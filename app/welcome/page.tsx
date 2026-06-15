@@ -37,7 +37,6 @@ export default function Welcome() {
     setImportMessage("");
 
     const { data: sessionData } = await supabase.auth.getSession();
-
     const accessToken = sessionData.session?.provider_token;
 
     if (!accessToken) {
@@ -62,14 +61,23 @@ export default function Welcome() {
     const result = await response.json();
 
     if (!response.ok) {
-      setImportMessage(
-        result.error || "Something went wrong importing Gmail."
-      );
+      setImportMessage(result.error || "Something went wrong importing Gmail.");
     } else {
-      setImportMessage(
-        `Imported ${result.imported} Gmail messages successfully.`
-      );
       console.log(result.messages);
+
+      const { error: insertError } = await supabase
+        .from("gmail_messages")
+        .upsert(result.messages, {
+          onConflict: "user_id,gmail_message_id",
+        });
+
+      if (insertError) {
+        setImportMessage(insertError.message);
+      } else {
+        setImportMessage(
+          `Saved ${result.imported} Gmail messages to PathFound.`
+        );
+      }
     }
 
     setImporting(false);
@@ -113,13 +121,9 @@ export default function Welcome() {
       </nav>
 
       <section className="max-w-3xl mx-auto px-8 py-16">
-        <h1 className="text-4xl font-bold mb-6">
-          Welcome to PathFound
-        </h1>
+        <h1 className="text-4xl font-bold mb-6">Welcome to PathFound</h1>
 
-        <p className="text-lg text-gray-700 mb-8">
-          You're signed in as:
-        </p>
+        <p className="text-lg text-gray-700 mb-8">You're signed in as:</p>
 
         <div className="bg-white rounded-xl shadow-sm border p-6 mb-10">
           <p className="font-medium">{email}</p>
@@ -131,13 +135,13 @@ export default function Welcome() {
           </h2>
 
           <p className="text-gray-700 mb-6">
-            PathFound organizes applications, interviews,
-            recruiter conversations, and follow-ups automatically.
+            PathFound organizes applications, interviews, recruiter
+            conversations, and follow-ups automatically.
           </p>
 
           <p className="text-gray-700 mb-8">
-            To get started, import your Gmail history so PathFound
-            can identify opportunities and help you track next steps.
+            To get started, import your Gmail history so PathFound can identify
+            opportunities and help you track next steps.
           </p>
 
           <button
@@ -149,9 +153,7 @@ export default function Welcome() {
           </button>
 
           {importMessage && (
-            <p className="mt-6 text-gray-700">
-              {importMessage}
-            </p>
+            <p className="mt-6 text-gray-700">{importMessage}</p>
           )}
         </div>
       </section>

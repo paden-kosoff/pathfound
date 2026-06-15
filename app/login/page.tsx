@@ -21,18 +21,21 @@ export default function Login() {
     }
   }
 
-  async function handleGoogleLogin() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: "https://pathfound.app/welcome",
+async function handleGoogleLogin() {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: "https://pathfound.app/welcome",
+      queryParams: {
+        prompt: "select_account",
       },
-    });
+    },
+  });
 
-    if (error) {
-      setMessage(error.message);
-    }
+  if (error) {
+    setMessage(error.message);
   }
+}
 
   return (
     <main className="min-h-screen flex items-center justify-center p-8">

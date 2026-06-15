@@ -11,13 +11,26 @@ export async function POST(request: Request) {
     );
   }
 
-  const query =
-    'newer_than:12m (interview OR recruiter OR "thank you for applying" OR "application received" OR "next steps" OR unfortunately OR offer OR "schedule a call" OR "hiring manager" OR "head of sales")';
+const query =
+  'newer_than:12m (' +
+  'subject:"thank you for applying" OR ' +
+  'subject:"thank you for your interest" OR ' +
+  'subject:"application received" OR ' +
+  'subject:"next steps" OR ' +
+  'subject:interview OR ' +
+  'subject:"schedule a call" OR ' +
+  'subject:"hiring manager" OR ' +
+  'subject:"head of sales" OR ' +
+  '"we regret to inform you" OR ' +
+  '"unfortunately we" OR ' +
+  '"move forward with other candidates" OR ' +
+  '"thank you for your interest"' +
+  ')';
 
   const listRes = await fetch(
     `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(
       query
-    )}&maxResults=25`,
+    )}&maxResults=100`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,

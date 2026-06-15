@@ -74,10 +74,10 @@ const query =
       const date =
         headers.find((h: { name: string }) => h.name === "Date")?.value || null;
 
-      return {
+return {
         user_id: userId,
-        gmail_message_id: msg.id,
-        thread_id: msg.threadId,
+        gmail_message_id: message.id,
+        thread_id: message.threadId,
         sender,
         subject,
         snippet: msg.snippet || "",

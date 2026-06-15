@@ -26,8 +26,10 @@ async function handleGoogleLogin() {
     provider: "google",
     options: {
       redirectTo: "https://pathfound.app/welcome",
+      scopes: "openid email profile https://www.googleapis.com/auth/gmail.readonly",
       queryParams: {
-        prompt: "select_account",
+        prompt: "select_account consent",
+        access_type: "offline",
       },
     },
   });

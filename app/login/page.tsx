@@ -21,10 +21,24 @@ export default function Login() {
     }
   }
 
+  async function handleGoogleLogin() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: "https://pathfound.app/welcome",
+      },
+    });
+
+    if (error) {
+      setMessage(error.message);
+    }
+  }
+
   return (
     <main className="min-h-screen flex items-center justify-center p-8">
       <div className="w-full max-w-md">
         <h1 className="text-4xl font-bold mb-3">Log in</h1>
+
         <p className="text-gray-600 mb-8">
           Welcome back to PathFound.
         </p>
@@ -50,6 +64,17 @@ export default function Login() {
           className="bg-green-900 text-white rounded-lg px-6 py-3 w-full"
         >
           Log In
+        </button>
+
+        <div className="my-6 text-center text-gray-400">
+          — or —
+        </div>
+
+        <button
+          onClick={handleGoogleLogin}
+          className="border rounded-lg px-6 py-3 w-full hover:bg-gray-50"
+        >
+          Continue with Google
         </button>
 
         {message && <p className="mt-4 text-red-600">{message}</p>}

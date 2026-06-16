@@ -84,12 +84,8 @@ export default function Welcome() {
         </a>
 
         <div className="flex gap-6 text-sm">
-          <a href="/" className="text-gray-700 hover:text-black">
-            Home
-          </a>
-
-          <a href="/welcome" className="text-gray-700 hover:text-black">
-            Welcome
+          <a href="/home" className="text-gray-700 hover:text-black">
+             Home
           </a>
 
           <a href="/account" className="text-gray-700 hover:text-black">

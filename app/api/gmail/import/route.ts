@@ -3,11 +3,18 @@ import { createClient } from "@supabase/supabase-js";
 import { classifyEmail } from "../../../../lib/classifyEmail";
 
 export async function POST(request: Request) {
-  const { accessToken, userId } = await request.json();
+  const body = await request.json();
+
+  const accessToken = body.accessToken;
+  const userId = body.userId;
 
   if (!accessToken || !userId) {
     return NextResponse.json(
-      { error: "Missing accessToken or userId" },
+      {
+        error: `Missing fields: accessToken=${accessToken ? "yes" : "no"}, userId=${
+          userId ? "yes" : "no"
+        }`,
+      },
       { status: 400 }
     );
   }
@@ -38,7 +45,9 @@ export async function POST(request: Request) {
       query
     )}&maxResults=100`,
     {
-      headers: { Authorization: `Bearer ${accessToken}` },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
     }
   );
 
@@ -58,7 +67,9 @@ export async function POST(request: Request) {
       const msgRes = await fetch(
         `https://gmail.googleapis.com/gmail/v1/users/me/messages/${message.id}?format=metadata&metadataHeaders=Subject&metadataHeaders=From&metadataHeaders=Date`,
         {
-          headers: { Authorization: `Bearer ${accessToken}` },
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
         }
       );
 

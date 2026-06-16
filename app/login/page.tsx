@@ -25,7 +25,7 @@ async function handleGoogleLogin() {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: "https://pathfound.app/welcome",
+      redirectTo: `${window.location.origin}/welcome`,
       scopes: "openid email profile https://www.googleapis.com/auth/gmail.readonly",
       queryParams: {
         prompt: "select_account consent",

@@ -15,10 +15,10 @@ export default function Welcome() {
 
       if (!data.user) {
         window.location.href = "/login";
-      } else {
-        setEmail(data.user.email);
+        return;
       }
 
+      setEmail(data.user.email);
       setChecking(false);
     }
 
@@ -32,18 +32,19 @@ export default function Welcome() {
 
   async function handleImportGmail() {
     setImporting(true);
-    setImportMessage("");
+    setImportMessage("Checking access...");
+
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData.user?.id;
 
     const { data: sessionData } = await supabase.auth.getSession();
     const accessToken = sessionData.session?.provider_token;
 
-    if (!accessToken) {
-      setImportMessage(
-        "Google access token not found. Please log out and sign back in with Google."
-      );
-      setImporting(false);
-      return;
-    }
+    const debugMessage = `Frontend check: accessToken=${
+      accessToken ? "yes" : "no"
+    }, userId=${userId ? "yes" : "no"}`;
+
+    setImportMessage(debugMessage);
 
     const response = await fetch("/api/gmail/import", {
       method: "POST",
@@ -52,15 +53,15 @@ export default function Welcome() {
       },
       body: JSON.stringify({
         accessToken,
+        userId,
       }),
     });
 
     const result = await response.json();
 
     if (!response.ok) {
-      setImportMessage(result.error || "Something went wrong importing Gmail.");
+      setImportMessage(`${debugMessage}. Server says: ${result.error}`);
     } else {
-      console.log(result.messages);
       setImportMessage(`Saved ${result.imported} Gmail messages to PathFound.`);
     }
 

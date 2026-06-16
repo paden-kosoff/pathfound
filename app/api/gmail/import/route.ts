@@ -43,7 +43,7 @@ export async function POST(request: Request) {
   const listRes = await fetch(
     `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(
       query
-    )}&maxResults=100`,
+    )}&maxResults=40`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,

@@ -5,7 +5,6 @@ import { supabase } from "../../lib/supabase";
 
 export default function Welcome() {
   const [email, setEmail] = useState<string | undefined>("");
-  const [userId, setUserId] = useState("");
   const [checking, setChecking] = useState(true);
   const [importing, setImporting] = useState(false);
   const [importMessage, setImportMessage] = useState("");
@@ -18,7 +17,6 @@ export default function Welcome() {
         window.location.href = "/login";
       } else {
         setEmail(data.user.email);
-        setUserId(data.user.id);
       }
 
       setChecking(false);
@@ -54,7 +52,6 @@ export default function Welcome() {
       },
       body: JSON.stringify({
         accessToken,
-        userId,
       }),
     });
 
@@ -64,20 +61,7 @@ export default function Welcome() {
       setImportMessage(result.error || "Something went wrong importing Gmail.");
     } else {
       console.log(result.messages);
-
-      const { error: insertError } = await supabase
-        .from("gmail_messages")
-        .upsert(result.messages, {
-          onConflict: "user_id,gmail_message_id",
-        });
-
-      if (insertError) {
-        setImportMessage(insertError.message);
-      } else {
-        setImportMessage(
-          `Saved ${result.imported} Gmail messages to PathFound.`
-        );
-      }
+      setImportMessage(`Saved ${result.imported} Gmail messages to PathFound.`);
     }
 
     setImporting(false);

@@ -119,6 +119,10 @@ export default function Welcome() {
             Home
           </a>
 
+          <a href="/assessment" className="text-gray-700 hover:text-black">
+            Assessment
+          </a>
+
           <a href="/account" className="text-gray-700 hover:text-black">
             Account
           </a>

@@ -3,6 +3,39 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 
+type StrengthScores = {
+  strategic?: number;
+  analytical?: number;
+  relationship?: number;
+  communication?: number;
+  execution?: number;
+  learning?: number;
+};
+
+const strengthLabels: Record<string, string> = {
+  strategic: "Strategic Navigator",
+  analytical: "Analytical Problem Solver",
+  relationship: "Relationship Builder",
+  communication: "Clear Communicator",
+  execution: "Execution Driver",
+  learning: "Learning Adapter",
+};
+
+const strengthWatchouts: Record<string, string> = {
+  "Strategic Navigator":
+    "Watch out for moving too quickly to the big picture before proving the details.",
+  "Analytical Problem Solver":
+    "Watch out for over-explaining the analysis before making the business point.",
+  "Relationship Builder":
+    "Watch out for underselling your hard skills and measurable impact.",
+  "Clear Communicator":
+    "Watch out for sounding polished without enough proof underneath.",
+  "Execution Driver":
+    "Watch out for making your work sound task-oriented instead of strategic.",
+  "Learning Adapter":
+    "Watch out for sounding too open-ended instead of already capable.",
+};
+
 export default function Account() {
   const [email, setEmail] = useState<string | undefined>("");
   const [userId, setUserId] = useState("");
@@ -19,6 +52,14 @@ export default function Account() {
   const [gmailSyncEnabled, setGmailSyncEnabled] = useState(false);
   const [desktopNotificationsEnabled, setDesktopNotificationsEnabled] =
     useState(false);
+
+  const [careerStrengthPrimary, setCareerStrengthPrimary] = useState("");
+  const [careerStrengthSecondary, setCareerStrengthSecondary] = useState("");
+  const [careerStrengthSummary, setCareerStrengthSummary] = useState("");
+  const [careerStrengthScores, setCareerStrengthScores] =
+    useState<StrengthScores | null>(null);
+  const [careerStrengthCompletedAt, setCareerStrengthCompletedAt] =
+    useState<string | null>(null);
 
   useEffect(() => {
     async function getUserAndProfile() {
@@ -48,6 +89,14 @@ export default function Account() {
         setGmailSyncEnabled(profile.gmail_sync_enabled || false);
         setDesktopNotificationsEnabled(
           profile.desktop_notifications_enabled || false
+        );
+
+        setCareerStrengthPrimary(profile.career_strength_primary || "");
+        setCareerStrengthSecondary(profile.career_strength_secondary || "");
+        setCareerStrengthSummary(profile.career_strength_summary || "");
+        setCareerStrengthScores(profile.career_strength_scores || null);
+        setCareerStrengthCompletedAt(
+          profile.career_strength_completed_at || null
         );
       }
 
@@ -109,8 +158,8 @@ export default function Account() {
             Home
           </a>
 
-          <a href="/welcome" className="text-gray-700 hover:text-black">
-            Welcome
+          <a href="/assessment" className="text-gray-700 hover:text-black">
+            Assessment
           </a>
 
           <a href="/account" className="text-gray-900 font-medium">
@@ -130,7 +179,7 @@ export default function Account() {
         <h1 className="text-4xl font-bold mb-4">Account</h1>
 
         <p className="text-gray-600 mb-8">
-          Manage your PathFound profile and preferences.
+          Manage your PathFound profile, preferences, and coaching profile.
         </p>
 
         <div className="bg-white border rounded-2xl p-8 mb-8">
@@ -187,6 +236,89 @@ export default function Account() {
             <option>Track certifications and training</option>
             <option>Negotiate an offer</option>
           </select>
+        </div>
+
+        <div className="bg-white border rounded-2xl p-8 mb-8">
+          <h2 className="text-xl font-semibold mb-2">Career Strengths</h2>
+
+          <p className="text-gray-600 mb-6">
+            These results help PathFound personalize coaching, interview prep,
+            and career guidance.
+          </p>
+
+          {careerStrengthPrimary ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div className="border rounded-xl p-5">
+                  <p className="text-sm text-gray-500 mb-2">Primary strength</p>
+                  <p className="text-xl font-semibold">
+                    {careerStrengthPrimary}
+                  </p>
+                </div>
+
+                <div className="border rounded-xl p-5">
+                  <p className="text-sm text-gray-500 mb-2">
+                    Secondary strength
+                  </p>
+                  <p className="text-xl font-semibold">
+                    {careerStrengthSecondary}
+                  </p>
+                </div>
+              </div>
+
+              <div className="border rounded-xl p-5 mb-6">
+                <h3 className="font-semibold mb-2">What this says about you</h3>
+                <p className="text-gray-700">{careerStrengthSummary}</p>
+              </div>
+
+              <div className="border rounded-xl p-5 mb-6">
+                <h3 className="font-semibold mb-2">Likely stretch area</h3>
+                <p className="text-gray-700">
+                  {strengthWatchouts[careerStrengthPrimary] ||
+                    "PathFound will use your results to identify where you may need to stretch in interviews."}
+                </p>
+              </div>
+
+              {careerStrengthScores && (
+                <details className="bg-stone-50 border rounded-xl p-5 mb-6">
+                  <summary className="cursor-pointer font-medium">
+                    View strength signal breakdown
+                  </summary>
+
+                  <div className="space-y-2 text-sm text-gray-700 mt-4">
+                    {Object.entries(careerStrengthScores).map(
+                      ([key, score]) => (
+                        <div key={key} className="flex justify-between">
+                          <span>{strengthLabels[key] || key}</span>
+                          <span>{score}</span>
+                        </div>
+                      )
+                    )}
+                  </div>
+                </details>
+              )}
+
+              {careerStrengthCompletedAt && (
+                <p className="text-sm text-gray-500">
+                  Completed{" "}
+                  {new Date(careerStrengthCompletedAt).toLocaleDateString()}
+                </p>
+              )}
+            </>
+          ) : (
+            <div className="border rounded-xl p-5">
+              <p className="text-gray-700 mb-4">
+                You have not completed your Career Strengths Assessment yet.
+              </p>
+
+              <a
+                href="/assessment"
+                className="inline-block bg-green-900 text-white px-5 py-3 rounded-lg hover:bg-green-800"
+              >
+                Take Assessment
+              </a>
+            </div>
+          )}
         </div>
 
         <div className="bg-white border rounded-2xl p-8 mb-8">

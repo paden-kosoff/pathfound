@@ -112,8 +112,8 @@ export default function AppDashboard() {
             Home
           </a>
 
-          <a href="/welcome" className="text-gray-700 hover:text-black">
-            Welcome
+          <a href="/assessment" className="text-gray-700 hover:text-black">
+             Assessment
           </a>
 
           <a href="/account" className="text-gray-700 hover:text-black">

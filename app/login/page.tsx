@@ -17,7 +17,7 @@ export default function Login() {
     if (error) {
       setMessage(error.message);
     } else {
-      window.location.href = "/welcome";
+      window.location.href = "/home";
     }
   }
 
@@ -25,7 +25,7 @@ async function handleGoogleLogin() {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${window.location.origin}/welcome`,
+      redirectTo: `${window.location.origin}/home`,
       scopes: "openid email profile https://www.googleapis.com/auth/gmail.readonly",
       queryParams: {
         prompt: "select_account consent",

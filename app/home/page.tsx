@@ -8,6 +8,10 @@ type Metric = {
   value: number;
 };
 
+type GmailMessageCategory = {
+  category: string | null;
+};
+
 export default function AppDashboard() {
   const [metrics, setMetrics] = useState<Metric[]>([
     { label: "Applications Sent", value: 0 },
@@ -35,6 +39,17 @@ export default function AppDashboard() {
         return;
       }
 
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("onboarding_complete")
+        .eq("user_id", userData.user.id)
+        .single();
+
+      if (!profile?.onboarding_complete) {
+        window.location.href = "/welcome";
+        return;
+      }
+
       const { data, error } = await supabase
         .from("gmail_messages")
         .select("category")
@@ -46,7 +61,7 @@ export default function AppDashboard() {
         return;
       }
 
-      const categories = data || [];
+      const categories = (data || []) as GmailMessageCategory[];
 
       setMetrics([
         {
@@ -93,7 +108,7 @@ export default function AppDashboard() {
         </a>
 
         <div className="flex gap-6 text-sm">
-          <a href="/" className="text-gray-700 hover:text-black">
+          <a href="/home" className="text-gray-900 font-medium">
             Home
           </a>
 
@@ -115,7 +130,7 @@ export default function AppDashboard() {
       </nav>
 
       <section className="p-8">
-        <h1 className="mb-6 text-3xl font-bold">Pathfound Dashboard</h1>
+        <h1 className="mb-6 text-3xl font-bold">Pathfound Home</h1>
 
         <section className="w-full max-w-md">
           <h2 className="mb-4 text-2xl font-bold">

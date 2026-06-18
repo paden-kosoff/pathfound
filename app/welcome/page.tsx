@@ -54,7 +54,7 @@ export default function Welcome() {
     });
   }
 
-  async function handleImportGmail() {
+  async function importGmail(importMode: "smart" | "debug_6m_all") {
     setImporting(true);
     setImportMessage("");
 
@@ -82,6 +82,7 @@ export default function Welcome() {
       body: JSON.stringify({
         accessToken,
         userId,
+        importMode,
       }),
     });
 
@@ -90,11 +91,21 @@ export default function Welcome() {
     if (!response.ok) {
       setImportMessage(result.error || "Something went wrong importing Gmail.");
     } else {
-      setImportMessage(`Saved ${result.imported} Gmail messages to PathFound.`);
+      setImportMessage(
+        `Saved ${result.imported} Gmail messages to PathFound. Skipped ${result.skipped || 0}. Mode: ${result.importMode}.`
+      );
       setStep(5);
     }
 
     setImporting(false);
+  }
+
+  async function handleImportGmail() {
+    await importGmail("smart");
+  }
+
+  async function handleDebugImportGmail() {
+    await importGmail("debug_6m_all");
   }
 
   if (checking) {
@@ -121,6 +132,10 @@ export default function Welcome() {
 
           <a href="/assessment" className="text-gray-700 hover:text-black">
             Assessment
+          </a>
+
+          <a href="/home/import-review" className="text-orange-700 hover:text-orange-900 font-medium">
+            Import Review
           </a>
 
           <a href="/account" className="text-gray-700 hover:text-black">
@@ -320,7 +335,7 @@ export default function Welcome() {
                 </span>
               </label>
 
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 <button
                   onClick={() => setStep(3)}
                   className="border px-6 py-3 rounded-lg hover:bg-gray-50"
@@ -335,7 +350,20 @@ export default function Welcome() {
                 >
                   {importing ? "Importing..." : "Import Gmail History"}
                 </button>
+
+                <button
+                  onClick={handleDebugImportGmail}
+                  disabled={importing}
+                  className="border border-orange-700 text-orange-800 px-6 py-3 rounded-lg hover:bg-orange-50 disabled:opacity-60"
+                >
+                  {importing ? "Importing..." : "Debug Import Last 6 Months"}
+                </button>
               </div>
+
+              <p className="mt-3 text-xs text-gray-500">
+                Debug import pulls a broad 6-month Gmail sample for QA. It is
+                for testing import coverage, not the normal user flow.
+              </p>
 
               {importMessage && (
                 <p className="mt-6 text-gray-700">{importMessage}</p>

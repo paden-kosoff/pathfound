@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
+import Link from "next/link";
 
 type StrengthScores = {
   strategic?: number;
@@ -161,6 +162,13 @@ export default function Account() {
           <a href="/assessment" className="text-gray-700 hover:text-black">
             Assessment
           </a>
+
+          <Link
+  href="/home/import-review"
+  className="text-gray-700 hover:text-black"
+>
+  Import Review
+</Link>
 
           <a href="/account" className="text-gray-900 font-medium">
             Account
